@@ -8,8 +8,8 @@
  * - MedicationRecommendationsOutput - The return type for the provideMedicationRecommendations function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const MedicationRecommendationsInputSchema = z.object({
   skinCondition: z.string().describe('The identified skin condition.'),
@@ -31,8 +31,8 @@ export async function provideMedicationRecommendations(input: MedicationRecommen
 
 const prompt = ai.definePrompt({
   name: 'medicationRecommendationsPrompt',
-  input: {schema: MedicationRecommendationsInputSchema},
-  output: {schema: MedicationRecommendationsOutputSchema},
+  input: { schema: MedicationRecommendationsInputSchema },
+  output: { schema: MedicationRecommendationsOutputSchema },
   prompt: `You are a dermatology expert providing guidance on skin conditions.
 
   Based on the identified skin condition, severity level, and any provided patient details, generate medicine recommendations, prevention tips, and follow-up guidance.
@@ -54,8 +54,12 @@ const provideMedicationRecommendationsFlow = ai.defineFlow(
     inputSchema: MedicationRecommendationsInputSchema,
     outputSchema: MedicationRecommendationsOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input: MedicationRecommendationsInput) => {
+    const response = await prompt(input);
+    if (!response) {
+      throw new Error('Failed to generate response');
+    }
+    const { output } = response;
     return output!;
   }
 );

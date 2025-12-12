@@ -7,8 +7,8 @@
  * - GeneratePersonalizedCareSuggestionsOutput - The return type for the generatePersonalizedCareSuggestions function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const GeneratePersonalizedCareSuggestionsInputSchema = z.object({
   condition: z.string().describe('The detected skin condition.'),
@@ -33,8 +33,8 @@ export async function generatePersonalizedCareSuggestions(
 
 const prompt = ai.definePrompt({
   name: 'generatePersonalizedCareSuggestionsPrompt',
-  input: {schema: GeneratePersonalizedCareSuggestionsInputSchema},
-  output: {schema: GeneratePersonalizedCareSuggestionsOutputSchema},
+  input: { schema: GeneratePersonalizedCareSuggestionsInputSchema },
+  output: { schema: GeneratePersonalizedCareSuggestionsOutputSchema },
   prompt: `You are a dermatology expert providing personalized care suggestions for skin conditions.
 
   Based on the detected skin condition, its severity, and patient details, generate personalized care suggestions, medicine recommendations, prevention tips, and follow-up guidance.
@@ -53,8 +53,12 @@ const generatePersonalizedCareSuggestionsFlow = ai.defineFlow(
     inputSchema: GeneratePersonalizedCareSuggestionsInputSchema,
     outputSchema: GeneratePersonalizedCareSuggestionsOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input: GeneratePersonalizedCareSuggestionsInput) => {
+    const response = await prompt(input);
+    if (!response) {
+      throw new Error('Failed to generate response');
+    }
+    const { output } = response;
     return output!;
   }
 );

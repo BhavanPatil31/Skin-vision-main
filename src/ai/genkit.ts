@@ -1,11 +1,11 @@
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
+import { genkit } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const HAS_KEY = Boolean(
   process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.GENKIT_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY
+  process.env.GOOGLE_API_KEY ||
+  process.env.GENKIT_API_KEY ||
+  process.env.NEXT_PUBLIC_GEMINI_API_KEY
 );
 
 const MISSING_KEY_ERROR =
@@ -19,6 +19,7 @@ function createMissingKeyStub() {
   const stubPrompt = (_opts?: any) => {
     const fn = async () => {
       err();
+      return {} as any;
     };
     return fn;
   };
@@ -26,18 +27,25 @@ function createMissingKeyStub() {
   const stubFlow = (_opts?: any, _fn?: any) => {
     return async () => {
       err();
+      return {} as any;
     };
+  };
+
+  const stubGenerate = async (_opts?: any) => {
+    err();
+    return {} as any;
   };
 
   return {
     definePrompt: stubPrompt,
     defineFlow: stubFlow,
+    generate: stubGenerate,
   } as const;
 }
 
 export const ai = HAS_KEY
   ? genkit({
-      plugins: [googleAI()],
-      model: 'googleai/gemini-2.5-flash',
-    })
+    plugins: [googleAI()],
+    model: 'googleai/gemini-2.5-flash',
+  })
   : createMissingKeyStub();
